@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution Nagios-Nrpe,
-version 0.001:
+version 0.002:
 
   Small framework for creating and using custom NAGIOS NRPE checks.
 

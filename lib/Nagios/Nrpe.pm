@@ -6,8 +6,6 @@ use warnings;
 
 use Moo;
 use Carp;
-use YAML;
-use FindBin qw($Bin);
 use autodie qw< :io >;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
@@ -16,8 +14,9 @@ use English qw( -no_match_vars ) ;
 ## no critic (return)
 ## no critic (POD)
 ## no critic (Quotes)
+## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 
 sub exit_ok
@@ -98,25 +97,17 @@ sub _exit
 };
 
 
-sub _load_config
-{
-    my $self = shift;
-
-    return YAML::LoadFile( $self->config_file );
-};
-
-
 sub _load_logger
 {
     my $self    = shift;
 
     my $config  = ( $self->verbose && $self->log ) ?
-                   $self->config->{log4perl}->{verbose}
+                   $self->_log_verbose
                   : ( ! $self->log && $self->verbose ) ?
-                    $self->config->{log4perl}->{stdout}
+                    $self->_log_stdout
                   : ( ! $self->log ) ?
-                    $self->config->{log4perl}->{disabled}
-                  : $self->config->{log4perl}->{default};
+                    $self->_log_disabled
+                  : $self->_log_default;
 
     Log::Log4perl->init( \$config );
 
@@ -160,7 +151,7 @@ sub generate_check
 {
     my $self       = shift;
     my $check_name = $self->check_name . '.pl';
-    my $template   = $self->config->{template};
+    my $template   = $self->_template;
     my $check_path = $self->check_path . '/' . $check_name;
 
     $template   =~ s/\[\%\s+check_name\s+\%\]/$check_name/xmsgi;
@@ -178,6 +169,111 @@ sub generate_check
 };
 
 
+sub _log_default
+{
+    return <<'EOF';
+log4perl.rootLogger                = DEBUG, SYSLOG
+log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
+log4perl.appender.SYSLOG.min_level = debug
+log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
+log4perl.appender.SYSLOG.facility  = daemon
+log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
+EOF
+};
+
+
+sub _log_verbose
+{
+	return <<'EOF';
+log4perl.rootLogger                = DEBUG, SYSLOG, SCREEN
+log4perl.appender.SCREEN           = Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.stderr    = 0
+log4perl.appender.SCREEN.layout    = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
+log4perl.appender.SYSLOG           = Log::Dispatch::Syslog
+log4perl.appender.SYSLOG.min_level = debug
+log4perl.appender.SYSLOG.ident     = Nagios::Nrpe
+log4perl.appender.SYSLOG.facility  = daemon
+log4perl.appender.SYSLOG.layout    = Log::Log4perl::Layout::SimpleLayout
+EOF
+};
+
+
+sub _log_stdout
+{
+	return <<'EOF';
+log4perl.rootLogger              = DEBUG, SCREEN
+log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.stderr  = 0
+log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.SCREEN.layout.ConversionPattern = %d %p %m %n
+EOF
+};
+
+
+sub _log_disabled
+{
+	return <<'EOF';
+log4perl.rootLogger              = DEBUG, LOG1
+log4perl.appender.LOG1           = Log::Log4perl::Appender::File
+log4perl.appender.LOG1.filename  = /dev/null
+log4perl.appender.LOG1.mode      = append
+log4perl.appender.LOG1.layout    = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.LOG1.layout.ConversionPattern = %d %p %m %n
+EOF
+};
+
+
+sub _template
+{
+	return <<'EOF';
+#!/usr/bin/env perl
+  
+use 5.010;
+use strict;
+use warnings;
+  
+use Nagios::Nrpe;
+use Getopt::Long;
+use Pod::Usage;
+
+## no critic (return)
+## no critic (POD)
+
+our $VERSION  = '0.002';
+
+## Setup default options.
+my $OPTIONS = { verbose => 0, }; 
+
+# Accept options in from the command line.
+GetOptions( $OPTIONS, 'verbose|v', 'help|h', 'man|m', );
+
+# Basic command line options flag switch.
+( $OPTIONS->{help} )     ? exit pod2usage( 1 ) 
+: ( $OPTIONS->{man} )    ? exit pod2usage( -exitstatus => 0, -verbose => 2 )
+:                          check( $OPTIONS );
+
+
+sub check
+{
+    my $options = shift;
+    my $nrpe    = Nagios::Nrpe->new( verbose => $options->{verbose}, log => 0 );
+
+    # INSERT YOUR CODE LOGIC HERE.
+    # SEE: perldoc Nagios::Nrpe FOR MORE INFOMATION
+
+    $nrpe->exit_ok('OK');
+};
+
+
+__END__
+
+INSERT YOUR POD HERE.
+
+EOF
+};
+
+
 has ok =>
 (
     is      => 'ro',
@@ -185,7 +281,7 @@ has ok =>
                      croak "$_[0]: nagios ok exit code is 0"
                      if ( $_[0] ne '0' );
                    },
-    default => sub { return $_[0]->config->{nagios}->{ok} },
+    default => sub { return 0 },
 );
 
 
@@ -196,7 +292,7 @@ has warning =>
                      croak "$_[0]: nagios warning exit code is 1"
                      if ( $_[0] ne '1' );
                    },
-    default => sub { return $_[0]->config->{nagios}->{warning} },
+    default => sub { return 1 },
 );
 
 
@@ -207,7 +303,7 @@ has critical =>
                      croak "$_[0]: nagios critical exit code is 2"
                      if ( $_[0] ne '2' );
                    },
-    default => sub { return $_[0]->config->{nagios}->{critical} },
+    default => sub { return 2 },
 );
 
 
@@ -218,7 +314,7 @@ has unknown =>
                      croak "$_[0]: nagios unknown exit code is 3"
                      if ( $_[0] ne '3');
                    },
-    default => sub { return $_[0]->config->{nagios}->{unknown} },
+    default => sub { return 3 },
 );
 
 
@@ -252,31 +348,6 @@ has exit_stats =>
 );
 
 
-has config =>
-(
-    is      => 'ro',
-    lazy    => 1,
-    isa     => sub {
-                     croak "$_[0]: not a hashref"
-                     if ( ref( $_[0] ) ne 'HASH');
-                   },
-    default => \&_load_config,
-);
-
-
-has config_file =>
-(
-    is      => 'ro',
-    isa     => sub {
-                     croak "$_[0]: not a readable file"
-                     if ( ! -T $_[0] || ! -r $_[0] );
-                   },
-    default => sub { ( -e "$Bin/../config.yaml" ) ? "$Bin/../config.yaml"
-                                                  : "$Bin/config.yaml" 
-                   },
-);
-
-
 has logger =>
 (
     is      => 'ro',
@@ -296,7 +367,7 @@ has log =>
                      croak "$_[0]: not a boolean"
                      if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
                    },
-    default => sub { return $_[0]->config->{log} },
+    default => sub { return 0 },
 );
 
 
@@ -307,7 +378,7 @@ has verbose =>
                  croak "$_[0]: not a boolean" 
                  if ( $_[0] !~ m/ ^ (?:0|1) $/xms );
                },
-    default => sub { return $_[0]->config->{verbose} },
+    default => sub { return 0 },
 );
 
 
@@ -357,7 +428,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
@@ -413,12 +484,6 @@ Used for check script generation. See nagios_nrpe.pl
 
 Used for check script generation. See nagios_nrpe.pl
 
-=head2 config_file
-
-    my $nrpe = Nagios::Nrpe->new( check_path => '/var/tmp/config.yaml' );
-
-Loads yaml config file. Default loads internal module config file.
-
 =head1 SUBROUTINES/METHODS
 
 =head2 exit_ok
@@ -468,14 +533,6 @@ Returns: Exits with a nagios "unknown" exit code.
 Usage: Creates a valid exit state for a NAGIOS NRPE check.
 
 Returns: exits program. Do not pass go, do not collect $200.
-
-=head2 _load_config
-
-    INTERNAL USE ONLY.
-
-Usage: Loads the yaml config file.
-
-Returns: hashref
 
 =head2 _load_logger
 
@@ -531,6 +588,36 @@ Returns: Nothing;
 Usage: Generates a new NAGIOS NRPE check.
 
 Returns: Path to newly created file.
+
+=head2 _log_default
+
+    INTERNAL USE ONLY.
+
+Returns: log4perl config.
+
+=head2 _log_verbose
+
+    INTERNAL USE ONLY.
+
+Returns: log4perl config.
+
+=head2 _log_stdout
+
+    INTERNAL USE ONLY.
+
+Returns: log4perl config.
+
+=head2 _log_disabled
+
+    INTERNAL USE ONLY.
+
+Returns: log4perl config.
+
+=head2 _template
+
+    INTERNAL USE ONLY.
+
+Returns: perl script template for new nagios nrpe check.
 
 =head1 BUGS AND LIMITATIONS
 

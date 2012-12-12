@@ -29,18 +29,16 @@ my %WriteMakefileArgs = (
     "Carp" => 0,
     "Cwd" => 0,
     "English" => 0,
-    "FindBin" => 0,
     "Getopt::Long" => 0,
     "Log::Dispatch::Syslog" => 0,
     "Log::Log4perl" => 0,
     "Moo" => 0,
     "Pod::Usage" => 0,
-    "YAML" => 0,
     "autodie" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -5,16 +5,13 @@ use strict;
 use warnings;
 
 use Cwd;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
 use Nagios::Nrpe;
 use Getopt::Long;
 use Pod::Usage;
 
 ## no critic (POD)
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 
 ## Setup default options.
@@ -65,7 +62,7 @@ B<nagios_nrpe.pl> - Create custom NAGIOS NRPE client checks on the fly.
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 

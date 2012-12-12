@@ -4,7 +4,6 @@ META.yml
 Makefile.PL
 README
 bin/nagios_nrpe.pl
-config.yaml
 dist.ini
 lib/Nagios/Nrpe.pm
 t/000-load.t
