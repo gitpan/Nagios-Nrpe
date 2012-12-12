@@ -1,0 +1,33 @@
+---
+abstract: 'Small framework for creating and using custom NAGIOS NRPE checks.'
+author:
+  - 'Sarah Fuller, <sarah at averna.id.au>'
+build_requires:
+  FindBin: 0
+  Perl::Critic: 0
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Nagios-Nrpe
+requires:
+  Carp: 0
+  Cwd: 0
+  English: 0
+  FindBin: 0
+  Getopt::Long: 0
+  Log::Dispatch::Syslog: 0
+  Log::Log4perl: 0
+  Moo: 0
+  Pod::Usage: 0
+  YAML: 0
+  autodie: 0
+  perl: 5.010
+  strict: 0
+  warnings: 0
+version: 0.001
