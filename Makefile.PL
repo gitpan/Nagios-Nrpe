@@ -9,11 +9,9 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Small framework for creating and using custom NAGIOS NRPE checks.",
+  "ABSTRACT" => "Small module for creating and using custom NAGIOS client side\nNRPE checks on linux hosts.",
   "AUTHOR" => "Sarah Fuller, <sarah at averna.id.au>",
   "BUILD_REQUIRES" => {
-    "FindBin" => 0,
-    "Perl::Critic" => 0,
     "Test::More" => 0
   },
   "CONFIGURE_REQUIRES" => {
@@ -38,7 +36,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.002",
+  "VERSION" => "0.003",
   "test" => {
     "TESTS" => "t/*.t"
   }

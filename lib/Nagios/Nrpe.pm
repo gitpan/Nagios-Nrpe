@@ -5,18 +5,21 @@ use strict;
 use warnings;
 
 use Moo;
+# Works with Mo but one is deprived of attribute type checking.
+#use Mo qw< is default >;
+use Cwd;
 use Carp;
 use autodie qw< :io >;
 use Log::Log4perl;
 use Log::Dispatch::Syslog;
-use English qw( -no_match_vars ) ;
+use English qw< -no_match_vars >;
 
 ## no critic (return)
 ## no critic (POD)
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 
 sub exit_ok
@@ -34,7 +37,7 @@ sub exit_ok
 
 sub exit_warning 
 {
-    my $self = shift;
+    my $self    = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
@@ -47,7 +50,7 @@ sub exit_warning
 
 sub exit_critical
 {
-    my $self = shift;
+    my $self    = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
@@ -60,7 +63,7 @@ sub exit_critical
 
 sub exit_unknown
 {
-    my $self = shift;
+    my $self    = shift;
     my $message = shift // 'Unknown';
     my $stats   = shift // '';
 
@@ -152,8 +155,10 @@ sub generate_check
     my $self       = shift;
     my $check_name = $self->check_name . '.pl';
     my $template   = $self->_template;
-    my $check_path = $self->check_path . '/' . $check_name;
+    my $check_path = $self->check_path;
 
+    $check_path =~ s/(:?\/)+$//xms;
+    $check_path .= '/' . $check_name;
     $template   =~ s/\[\%\s+check_name\s+\%\]/$check_name/xmsgi;
 
     croak "File $check_path already exists" if ( -e $check_path );
@@ -240,7 +245,7 @@ use Pod::Usage;
 ## no critic (return)
 ## no critic (POD)
 
-our $VERSION  = '0.002';
+our $VERSION  = '0.003';
 
 ## Setup default options.
 my $OPTIONS = { verbose => 0, }; 
@@ -400,6 +405,7 @@ has check_path =>
     isa  => sub { croak "$_[0]: directory does not exist or can't write to"
                         . " directory" if ( ! -d $_[0] || ! -w $_[0] );
                 },
+    default => sub { return getcwd },
 );
 
 
@@ -412,7 +418,8 @@ __END__
 
 =head1 NAME
 
-Nagios::Nrpe - Small framework for creating and using custom NAGIOS NRPE checks.
+Nagios::Nrpe - Small module for creating and using custom NAGIOS client side
+NRPE checks on linux hosts.
 
 =head1 DESCRIPTION
 
@@ -428,7 +435,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
@@ -455,6 +462,13 @@ version 0.002
     : ( $exit_code == 100 ) ? $nrpe->exit_warning('new updates available')
     : $nrpe->exit_unknown('unknown status');
 
+=head2 Creating a new NRPE check
+
+    perl nagios_nrpe.pl -name foo
+    + file: /path/to/script/foo.pl
+
+Creates a skeleton script for the new check.
+The nagios_nrpe.pl script comes with this module.
 
 =head1 OPTIONS
 
@@ -526,22 +540,6 @@ This call will exit the program with the desired exit code.
 
 Returns: Exits with a nagios "unknown" exit code.
 
-=head2 _exit
-
-    INTERNAL USE ONLY.
-
-Usage: Creates a valid exit state for a NAGIOS NRPE check.
-
-Returns: exits program. Do not pass go, do not collect $200.
-
-=head2 _load_logger
-
-    INTERNAL USE ONLY.
-
-Usage: Inits the log4perl logger.
-
-Returns: blessed ref
-
 =head2 error
 
     my $nrpe = Nagios::Nrpe->new();
@@ -563,7 +561,7 @@ Usage: Info messaging.
 If verbose is on will print to stdout. If log is on will log to
 syslog. 
 
-Returns: Nothing;
+Returns: Nothing.
 
 =head2 debug
 
@@ -574,7 +572,7 @@ Usage: Debug messaging.
 If verbose is on will print to stdout. If log is on will log to
 syslog. 
 
-Returns: Nothing;
+Returns: Nothing.
 
 =head2 generate_check
 
@@ -588,6 +586,22 @@ Returns: Nothing;
 Usage: Generates a new NAGIOS NRPE check.
 
 Returns: Path to newly created file.
+
+=head2 _exit
+
+    INTERNAL USE ONLY.
+
+Usage: Creates a valid exit state for a NAGIOS NRPE check.
+
+Returns: exits program. Do not pass go, do not collect $200.
+
+=head2 _load_logger
+
+    INTERNAL USE ONLY.
+
+Usage: Inits the log4perl logger.
+
+Returns: blessed ref
 
 =head2 _log_default
 

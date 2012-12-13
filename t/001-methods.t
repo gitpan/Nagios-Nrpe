@@ -1,4 +1,4 @@
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 BEGIN { use_ok( 'Nagios::Nrpe' ); }
 
@@ -53,9 +53,13 @@ $exit=$? >> 8;
 is ($exit, '2', "Error log");
 
 $stdout=qx{ perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new(
- check_name => (int( rand(12151)) + 12151) . '_001_methods_test_nagios_nrpe', 
- check_path => '/tmp' )->generate_check();" };
+ check_name => (int( rand(12151)) + 12151) . '_001_methods_test_nagios_nrpe' 
+ )->generate_check();" };
 $exit=$? >> 8;
 is ($exit, '0', "Generate script");
 
-
+$stdout=qx{ perl -Ilib -e "use Nagios::Nrpe; print Nagios::Nrpe->new(
+ check_name => (int( rand(12151)) + 12151) . '_001_methods_test_nagios_nrpe', 
+ check_path => '/tmp' )->generate_check();" };
+$exit=$? >> 8;
+is ($exit, '0', "Generate script - custom path")

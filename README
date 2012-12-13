@@ -1,9 +1,10 @@
 
 
 This archive contains the distribution Nagios-Nrpe,
-version 0.002:
+version 0.003:
 
-  Small framework for creating and using custom NAGIOS NRPE checks.
+  Small module for creating and using custom NAGIOS client side
+NRPE checks on linux hosts.
 
 This software is copyright (c) 2012 by Sarah Fuller.
 

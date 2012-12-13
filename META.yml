@@ -1,10 +1,8 @@
 ---
-abstract: 'Small framework for creating and using custom NAGIOS NRPE checks.'
+abstract: "Small module for creating and using custom NAGIOS client side\nNRPE checks on linux hosts."
 author:
   - 'Sarah Fuller, <sarah at averna.id.au>'
 build_requires:
-  FindBin: 0
-  Perl::Critic: 0
   Test::More: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
@@ -28,4 +26,4 @@ requires:
   perl: 5.010
   strict: 0
   warnings: 0
-version: 0.002
+version: 0.003

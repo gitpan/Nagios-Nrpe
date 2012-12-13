@@ -11,19 +11,16 @@ use Pod::Usage;
 
 ## no critic (POD)
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 
 ## Setup default options.
-my $OPTIONS = { 
-             verbose => 1,
-             path    => getcwd
-           };
+my $OPTIONS = { verbose => 1, path => getcwd }; 
 
 # Accept options in from the command line.
 GetOptions( $OPTIONS, 
                       'name|n=s', 
-                      'path|p', 
+                      'path|p=s', 
                       'verbose|v', 
                       'help|h',
                       'man|m', 
@@ -46,7 +43,7 @@ sub generate_check
 
     my $check_path = $nrpe->generate_check;
 
-    say '+ ' . $check_path;
+    say '+ file: ' . $check_path;
 
     return;
 };
@@ -62,7 +59,7 @@ B<nagios_nrpe.pl> - Create custom NAGIOS NRPE client checks on the fly.
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
