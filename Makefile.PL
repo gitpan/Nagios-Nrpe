@@ -26,17 +26,18 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Carp" => 0,
     "Cwd" => 0,
+    "Data::Dumper" => 0,
     "English" => 0,
     "Getopt::Long" => 0,
     "Log::Dispatch::Syslog" => 0,
     "Log::Log4perl" => 0,
-    "Moo" => 0,
+    "Moose" => 0,
     "Pod::Usage" => 0,
     "autodie" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.003",
+  "VERSION" => "0.005",
   "test" => {
     "TESTS" => "t/*.t"
   }
