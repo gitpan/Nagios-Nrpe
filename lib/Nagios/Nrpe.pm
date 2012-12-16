@@ -18,7 +18,7 @@ use Data::Dumper;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.006';
+our $VERSION = '0.008';
 
 
 sub exit_ok
@@ -403,7 +403,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.006
+version 0.008
 
 =head1 SYNOPSIS
 
@@ -418,7 +418,7 @@ version 0.006
     open ( my $fh, '-|', '/usr/bin/yum check-update' )
     || $nrpe->exit_warning('yum command failed');
 
-        my $yum_info = { verbose => do { local $/; <$fh> } };
+        my $yum_info = do { local $/; <$fh> };
 
     close ( $fh );
 
