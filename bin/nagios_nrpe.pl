@@ -11,7 +11,7 @@ use Pod::Usage;
 
 ## no critic (POD)
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 
 ## Setup default options.
@@ -59,7 +59,7 @@ B<nagios_nrpe.pl> - Create custom NAGIOS NRPE client checks on the fly.
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 SYNOPSIS
 

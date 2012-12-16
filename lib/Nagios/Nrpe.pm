@@ -18,7 +18,7 @@ use Data::Dumper;
 ## no critic (Quotes)
 ## no critic (ProhibitMagicNumbers)
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 
 sub exit_ok
@@ -387,8 +387,7 @@ __END__
 
 =head1 NAME
 
-Nagios::Nrpe - Small module for creating and using custom NAGIOS client side
-NRPE checks on linux hosts.
+Nagios::Nrpe - Small module for creating & using NAGIOS NRPE checks.
 
 =head1 DESCRIPTION
 
@@ -404,7 +403,7 @@ than value added? Well...
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 SYNOPSIS
 

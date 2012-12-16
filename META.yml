@@ -1,5 +1,5 @@
 ---
-abstract: "Small module for creating and using custom NAGIOS client side\nNRPE checks on linux hosts."
+abstract: 'Small module for creating & using NAGIOS NRPE checks.'
 author:
   - 'Sarah Fuller, <sarah at averna.id.au>'
 build_requires:
@@ -27,4 +27,4 @@ requires:
   perl: 5.010
   strict: 0
   warnings: 0
-version: 0.005
+version: 0.006
